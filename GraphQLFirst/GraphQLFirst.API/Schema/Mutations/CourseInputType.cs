@@ -1,4 +1,5 @@
-﻿using GraphQLFirst.API.Schema.Queries;
+﻿using GraphQLFirst.API.Models;
+using GraphQLFirst.API.Schema.Queries;
 
 namespace GraphQLFirst.API.Schema.Mutations
 {

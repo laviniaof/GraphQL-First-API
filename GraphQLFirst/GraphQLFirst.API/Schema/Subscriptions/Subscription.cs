@@ -4,6 +4,11 @@ using HotChocolate.Subscriptions;
 
 namespace GraphQLFirst.API.Schema.Subscriptions
 {
+    
+    /// <summary>
+    /// In GraphQL, Subscriptions able clients to receive updated data in real time while changes happens on server.
+    /// That´s why we set up WebSockers ai Startup.cs
+    /// </summary>
     public class Subscription
     {
         [Subscribe]
