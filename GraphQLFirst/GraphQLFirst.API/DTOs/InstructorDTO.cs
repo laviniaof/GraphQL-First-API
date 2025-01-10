@@ -9,5 +9,8 @@
         public string LastName { get; set; }
 
         public double Salary { get; set; }
+
+        public IEnumerable<CourseDTO> Courses { get; set; }
+
     }
 }

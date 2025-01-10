@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GraphQLFirst.API.Migrations
 {
     [DbContext(typeof(SchoolDbContext))]
-    [Migration("20250110183546_Initial")]
+    [Migration("20250110184148_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -19,6 +19,21 @@ namespace GraphQLFirst.API.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.0");
+
+            modelBuilder.Entity("CourseDTOStudentDTO", b =>
+                {
+                    b.Property<Guid>("CoursesId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("StudentsId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("CoursesId", "StudentsId");
+
+                    b.HasIndex("StudentsId");
+
+                    b.ToTable("CourseDTOStudentDTO");
+                });
 
             modelBuilder.Entity("GraphQLFirst.API.DTOs.CourseDTO", b =>
                 {
@@ -71,9 +86,6 @@ namespace GraphQLFirst.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid?>("CourseDTOId")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -87,9 +99,22 @@ namespace GraphQLFirst.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CourseDTOId");
-
                     b.ToTable("Students");
+                });
+
+            modelBuilder.Entity("CourseDTOStudentDTO", b =>
+                {
+                    b.HasOne("GraphQLFirst.API.DTOs.CourseDTO", null)
+                        .WithMany()
+                        .HasForeignKey("CoursesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GraphQLFirst.API.DTOs.StudentDTO", null)
+                        .WithMany()
+                        .HasForeignKey("StudentsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("GraphQLFirst.API.DTOs.CourseDTO", b =>
@@ -101,18 +126,6 @@ namespace GraphQLFirst.API.Migrations
                         .IsRequired();
 
                     b.Navigation("Instructor");
-                });
-
-            modelBuilder.Entity("GraphQLFirst.API.DTOs.StudentDTO", b =>
-                {
-                    b.HasOne("GraphQLFirst.API.DTOs.CourseDTO", null)
-                        .WithMany("Students")
-                        .HasForeignKey("CourseDTOId");
-                });
-
-            modelBuilder.Entity("GraphQLFirst.API.DTOs.CourseDTO", b =>
-                {
-                    b.Navigation("Students");
                 });
 #pragma warning restore 612, 618
         }
