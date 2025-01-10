@@ -1,13 +1,32 @@
-using GraphQLFirst.API;
+﻿using GraphQLFirst.API.Services;
+using Microsoft.EntityFrameworkCore;
 
-/** Invokes Startup.cs keeping the code organized in separed files*/
-var builder = WebApplication.CreateBuilder(args);
+namespace GraphQLFirst.API
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            //this migration will create the database if it does not exist when the application starts
+            IHost host = CreateHostBuilder(args).Build();
 
-var startup = new Startup(builder.Configuration);
-startup.ConfigureServices(builder.Services);
+            using (IServiceScope scope = host.Services.CreateScope())
+            {
+                IDbContextFactory<SchoolDbContext> contextFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<SchoolDbContext>>();
 
-var app = builder.Build();
+                using(SchoolDbContext context = contextFactory.CreateDbContext())
+                {
+                    context.Database.Migrate();
+                }
 
-startup.Configure(app, builder.Environment);
+            }
+        }
 
-app.Run();
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+            .ConfigureWebHostDefaults(webBuilder =>
+            {
+                webBuilder.UseStartup<Startup>();
+            });
+    }
+}

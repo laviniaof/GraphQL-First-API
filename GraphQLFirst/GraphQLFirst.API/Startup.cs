@@ -3,16 +3,19 @@
 using GraphQLFirst.API.Schema.Mutations;
 using GraphQLFirst.API.Schema.Queries;
 using GraphQLFirst.API.Schema.Subscriptions;
+using GraphQLFirst.API.Services;
+using Microsoft.EntityFrameworkCore;
 
 namespace GraphQLFirst.API
 {
     public class Startup
     {
-        public IConfiguration Configuration { get; }
+
+        private readonly IConfiguration _configuration;
 
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            _configuration = configuration;
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -22,6 +25,9 @@ namespace GraphQLFirst.API
             .AddMutationType<Mutation>()
                     .AddSubscriptionType<Subscription>()
                     .AddInMemorySubscriptions();
+
+            string connectionString = _configuration.GetConnectionString("default");
+            services.AddPooledDbContextFactory<SchoolDbContext>(o => o.UseSqlite(connectionString));
 
 
         }

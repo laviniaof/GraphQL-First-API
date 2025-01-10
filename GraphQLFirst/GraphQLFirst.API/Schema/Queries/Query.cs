@@ -1,4 +1,5 @@
 ﻿using Bogus;
+using GraphQLFirst.API.Models;
 
 namespace GraphQLFirst.API.Schema.Queries
 {
