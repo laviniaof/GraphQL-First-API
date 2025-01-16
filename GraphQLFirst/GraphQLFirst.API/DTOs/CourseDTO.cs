@@ -11,7 +11,7 @@ namespace GraphQLFirst.API.DTOs
 
         public Subject Subject { get; set; }
 
-        public Guid InstructorID { get; set; }
+        public Guid InstructorId { get; set; }
 
         public InstructorDTO Instructor { get; set; }
 
