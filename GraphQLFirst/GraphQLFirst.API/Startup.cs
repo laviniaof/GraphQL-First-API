@@ -4,7 +4,9 @@ using GraphQLFirst.API.Schema.Mutations;
 using GraphQLFirst.API.Schema.Queries;
 using GraphQLFirst.API.Schema.Subscriptions;
 using GraphQLFirst.API.Services;
+using GraphQLFirst.API.Services.Courses;
 using Microsoft.EntityFrameworkCore;
+
 
 namespace GraphQLFirst.API
 {
@@ -20,6 +22,7 @@ namespace GraphQLFirst.API
 
         public void ConfigureServices(IServiceCollection services)
         {
+
             services.AddGraphQLServer()
                     .AddQueryType<Query>()
             .AddMutationType<Mutation>()
@@ -29,6 +32,7 @@ namespace GraphQLFirst.API
             string connectionString = _configuration.GetConnectionString("default");
             services.AddPooledDbContextFactory<SchoolDbContext>(o => o.UseSqlite(connectionString));
 
+            services.AddScoped<CoursesRepository>();
 
         }
 

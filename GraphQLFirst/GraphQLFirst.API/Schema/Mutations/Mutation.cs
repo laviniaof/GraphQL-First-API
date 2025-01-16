@@ -1,4 +1,6 @@
-﻿using GraphQLFirst.API.Schema.Subscriptions;
+﻿using GraphQLFirst.API.DTOs;
+using GraphQLFirst.API.Schema.Subscriptions;
+using GraphQLFirst.API.Services.Courses;
 using HotChocolate.Execution.Processing;
 using HotChocolate.Subscriptions;
 
@@ -6,25 +8,34 @@ namespace GraphQLFirst.API.Schema.Mutations
 {
     public class Mutation
     {
-        private readonly List<CourseResult> _courses;
+        private readonly CoursesRepository _coursesRepository;
 
-        public Mutation()
+        public Mutation(CoursesRepository coursesRepository)
         {
-            _courses = new List<CourseResult>();
+            _coursesRepository = coursesRepository;
         }
+
+
         public async Task<CourseResult> CreateCourse(CourseInputType courseInput, [Service] ITopicEventSender topicEventSender)
         {
-            CourseResult course = new CourseResult()
+            CourseDTO courseDTO = new CourseDTO()
             {
-                Id = Guid.NewGuid(),
                 Name = courseInput.Name,
                 Subject = courseInput.Subject,
-                InstructorId = courseInput.InstructorId,
+                InstructorId = courseInput.InstructorId
+            };
+
+            courseDTO = await _coursesRepository.Create(courseDTO);
+
+            CourseResult course = new CourseResult()
+            {
+                Id = courseDTO.Id,
+                Name = courseDTO.Name,
+                Subject = courseDTO.Subject,
+                InstructorId = courseDTO.InstructorId,
 
             };
 
-            //search in graphql doc how this way is working today
-            _courses.Add(course);
             await topicEventSender.SendAsync(nameof(Subscription.CourseCreated), course); ;
 
             return course;
@@ -32,27 +43,32 @@ namespace GraphQLFirst.API.Schema.Mutations
 
         public async Task<CourseResult> UpdateCourse(Guid id, CourseInputType courseInput, [Service] ITopicEventSender topicEventSender)
         {
-            CourseResult course = _courses.FirstOrDefault(c => c.Id == id);
-
-            if (course == null)
+            CourseDTO courseDTO = new CourseDTO()
             {
-                throw new GraphQLException(new Error("Course not found"));
-            }
+                Id = id,
+                Name = courseInput.Name,
+                Subject = courseInput.Subject,
+                InstructorId = courseInput.InstructorId
+            };
 
-            course.Name = courseInput.Name;
-            course.Subject = courseInput.Subject;
-            course.InstructorId = courseInput.InstructorId;
+            courseDTO = await _coursesRepository.Update(courseDTO);
 
-            //search in graphql doc how this way is working today
+            CourseResult course= new CourseResult()
+            {
+                Name = courseInput.Name,
+                Subject = courseInput.Subject,
+                InstructorId = courseInput.InstructorId
+            };
+
             string updateCourseTopic = $"{course.Id}_{nameof(Subscription.CourseUpdated)}";
             await topicEventSender.SendAsync(updateCourseTopic, course);
 
             return course;
         }
 
-        public bool DeleteCourse(Guid id)
+        public async Task<bool> DeleteCourse(Guid id)
         {
-            return _courses.RemoveAll(c => c.Id == id) >= 1;
+            return await _coursesRepository.Delete(id);
         }
     }
 }
